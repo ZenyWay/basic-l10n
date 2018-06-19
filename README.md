@@ -23,15 +23,16 @@ const debug = logger('(debug)')
 
 const localizations = {
   en: {
-    'date: %s/%s/%s': 'date: %0/%1/%2', // reorder substitutions
+    'date: %s/%s/%s': 'date: %0/%1/%2',
     'you have %s new messages.': [ // pluralization
       'you have no new messages.', // 0
       'you have one new message.', // 1
       'you have %0 new messages.' // 2 and more
+      // not limited to 3 entries, could be any number
     ]
   },
   fr: {
-    'date: %s/%s/%s': 'date: %1/%0/%2',
+    'date: %s/%s/%s': 'date: %1/%0/%2', // reorder substitutions
     'you have %s new messages.': [
       'vous n\'avez pas de nouveaux messages.',
       'vous avez un nouveau message.',

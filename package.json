@@ -1,6 +1,6 @@
 {
   "name": "basic-l10n",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "basic localization of template literals (360 bytes gzip), including pluralization and reordering of substitutions.",
   "main": "dist/index.min.js",
   "typings": "dist/index.d.ts",
@@ -36,12 +36,12 @@
   "license": "SEE LICENSE IN LICENSE",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zenyway/basic-compose.git"
+    "url": "git+https://github.com/zenyway/basic-l10n.git"
   },
   "bugs": {
-    "url": "https://github.com/zenyway/basic-compose/issues"
+    "url": "https://github.com/zenyway/basic-l10n/issues"
   },
-  "homepage": "https://github.com/zenyway/basic-compose#readme",
+  "homepage": "https://github.com/zenyway/basic-l10n#readme",
   "devDependencies": {
     "@types/node": "^10.3.4",
     "browserify": "^16.2.2",
