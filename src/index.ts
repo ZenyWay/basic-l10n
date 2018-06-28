@@ -14,7 +14,8 @@
  */
 ;
 export interface L10nTag {
-  (strings: TemplateStringsArray, ...substitutions: any[]): string
+  (key: string): string
+  (strings: TemplateStringsArray, ...substitutes: any[]): string
   localizations: Localizations
   locale: string
 }
@@ -30,47 +31,86 @@ export interface L10nOptions {
   debug: (...args: any[]) => void
 }
 
+const isArray: (val: any) => val is any[] = Array.isArray.bind(Array)
+
 export default function createL10n(
   localizations = {} as Localizations,
-  { locale, debug } = {} as Partial<L10nOptions>
+  opts = {} as Partial<L10nOptions>
 ): L10nTag {
   ;(l10n as L10nTag).localizations = localizations
   const locales = localizations && Object.keys(localizations)
-  ;(l10n as L10nTag).locale = locale || (locales && locales[0])
+  ;(l10n as L10nTag).locale = opts.locale || (locales && locales[0])
 
   return l10n as L10nTag
 
-  function l10n (strings: TemplateStringsArray, ...substitutions: any[]): string {
+  function l10n (key: string): string
+  function l10n (strings: TemplateStringsArray, ...substitutes: any[]): string
+  function l10n (
+    keyOrStrings: string|TemplateStringsArray,
+    ...substitutes: any[]
+  ): string {
     const locale = (l10n as L10nTag).locale
     const localizations = ((l10n as L10nTag).localizations || {})[locale]
-    const key = strings.join('%s') // TODO
+    const isKey = !isArray(keyOrStrings && (keyOrStrings as TemplateStringsArray).raw)
+    const numSubstitutes = substitutes.length
+    const key = isKey
+      ? keyOrStrings as string
+      : (keyOrStrings as TemplateStringsArray).join(numSubstitutes ? '%s' : '')
     const localization = localizations && localizations[key]
-    if (process.env.NODE_ENV !== 'production') { // eliminated in minified build
-      if (debug) {
-        if (!localizations) {
-          debug(`WARNING: undefined localizations for locale "${locales}"`)
-        } else if (!localization) {
-          debug(`WARNING: undefined localization for locale "${locale}" and key: "${key}"`)
-        }
-      }
+    if (process.env.NODE_ENV !== 'production') { // excluded from minified production build
+      assert(opts, localizations, localization, locale, key, isKey)
     }
-    if (!localization) {
-      return (String.raw as Function)(...arguments)
-    }
-    const template = !Array.isArray(localization)
-      ? localization
-      : getBounded(localization, substitutions[0])
-    const phrases = template.split(/%(\d+)/)
-    let i = phrases.length
-    while (--i > 0) {
-      const k = phrases[--i]
-      phrases[i] = substitutions[k]
-    }
-    return phrases.join('')
+    return isKey
+      ? (!localization || isArray(localization) ? key : localization)
+      : (
+        !localization
+          ? (String.raw as Function)(...arguments)
+          : substitute(localization, substitutes)
+      )
   }
+}
+
+function substitute (localization: string | string[], substitutes: any[]) {
+  const template = !isArray(localization)
+    ? localization
+    : getBounded(localization, substitutes[0]);
+  const phrases = template.split(/%(\d+)/);
+  let i = phrases.length;
+  while (--i > 0) {
+    const k = phrases[--i];
+    phrases[i] = substitutes[k];
+  }
+  return phrases.join('');
 }
 
 function getBounded <T=any>(arr: T[], index: number): T {
   const length = arr.length
   return arr[index < length ? (index < 0 ? 0 : index) : (length - 1)]
+}
+
+// excluded from minified production build
+function assert(
+  { debug }: Partial<L10nOptions>,
+  localizations: { [key: string]: string | string[] },
+  localization: string | string[],
+  locale: string,
+  key: string,
+  isKey: boolean
+) {
+  if (!debug) { return }
+  if (!localizations) {
+    return debug(
+      `WARNING: undefined localizations for locale "${locale}"`
+    )
+  }
+  if (!localization) {
+    return debug(
+      `WARNING: undefined localization for locale "${locale}" and key "${key}"`
+    )
+  }
+  else if (isKey && isArray(localization)) {
+    return debug(
+      `WARNING: unexpected localization type for locale "${locale}" and key "${key}"`
+    )
+  }
 }

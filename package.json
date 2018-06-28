@@ -1,7 +1,7 @@
 {
   "name": "basic-l10n",
-  "version": "1.0.1",
-  "description": "basic localization of template literals (360 bytes gzip), including pluralization and reordering of substitutions.",
+  "version": "1.1.0",
+  "description": "basic localization of strings (391 bytes gzip, no deps), including pluralization and reordering of substitutions with template literals.",
   "main": "dist/index.min.js",
   "typings": "dist/index.d.ts",
   "scripts": {
@@ -11,14 +11,14 @@
     "example": "npm run example:bundle && npm run example:serve",
     "example:serve": "http-server -c-1 -i -e html -o -p 6510 example",
     "preexample:bundle": "rimraf spec/example/*.js",
-    "example:bundle": "browserify example/index.ts -p [ tsify --project example ] -g uglifyify -p bundle-collapser/plugin -p [ common-shakeify -v ] | uglifyjs -c -m toplevel -o example/index.js",
+    "example:bundle": "browserify example/index.ts -p [ tsify --project example ] -g uglifyify -p bundle-collapser/plugin -p [ common-shakeify -v ] | uglifyjs -c toplevel -m toplevel -o example/index.js",
     "prepublish": "npm run test",
     "pretest": "npm run dist",
     "test": "jasmine",
     "test:web:serve": "http-server -c-1 -o -p 6510 spec/web",
     "pretest:web": "rimraf spec/web/*.js && npm run dist",
-    "test:web": "browserify spec/*.spec.js -g uglifyify -p bundle-collapser/plugin -p [ common-shakeify -v ] | uglifyjs -c -m toplevel -o spec/web/index.spec.js && npm run test:web:serve",
-    "uglify": "uglifyjs dist/index.js -c -m toplevel --define process.env.NODE_ENV=\\\"production\\\" -o dist/index.min.js"
+    "test:web": "browserify spec/*.spec.js -g uglifyify -p bundle-collapser/plugin -p [ common-shakeify -v ] | uglifyjs -c toplevel -m toplevel -o spec/web/index.spec.js && npm run test:web:serve",
+    "uglify": "uglifyjs dist/index.js -c toplevel -m toplevel --define process.env.NODE_ENV=\\\"production\\\" -o dist/index.min.js"
   },
   "keywords": [
     "locale",

@@ -1,9 +1,8 @@
 # basic-l10n
 [![NPM](https://nodei.co/npm/basic-l10n.png?compact=true)](https://nodei.co/npm/basic-l10n/)
 
-basic localization of template literals (360 bytes gzip),
-including pluralization and reordering of substitutions.
-no dependencies.
+basic localization of strings (391 bytes gzip, no dependencies),
+including pluralization and reordering of substitutions with template literals.
 
 in the non-minified version (`basic-l10n/dist/index.js`),
 unknown template literals generate a warning when a logger is provided,
@@ -14,7 +13,7 @@ without localization.
 
 # Example
 see this [example](./example/index.ts) in this directory.<br/>
-run this example [in your browser](https://cdn.rawgit.com/ZenyWay/basic-l10n/v1.0.0/example/index.html).
+run this example [in your browser](https://cdn.rawgit.com/ZenyWay/basic-l10n/v1.1.0/example/index.html).
 ```ts
 import createL10n from 'basic-l10n/dist/index.js' // dev version with debug warnings
 import log from './console'
@@ -23,6 +22,7 @@ const debug = logger('(debug)')
 
 const localizations = {
   en: {
+    'welcome': 'welcome', // default string localization
     'date: %s/%s/%s': 'date: %0/%1/%2',
     'you have %s new messages.': [ // pluralization
       'you have no new messages.', // 0
@@ -32,6 +32,7 @@ const localizations = {
     ]
   },
   fr: {
+    'welcome': 'bienvenue',
     'date: %s/%s/%s': 'date: %1/%0/%2', // reorder substitutions
     'you have %s new messages.': [
       'vous n\'avez pas de nouveaux messages.',
@@ -45,24 +46,27 @@ const l10n = createL10n(localizations, { debug })
 
 for (const lang of ['en', 'fr']) {
   l10n.locale = lang
-  log(l10n`date: ${1}/${7}/${1982}`)
+  log(l10n('welcome')) // default string localization
+  log(l10n`date: ${1}/${7}/${1982}`) // reordering with template strings
   for (const count of [0, 1, 5]) {
-    log(l10n`you have ${count} new messages.`)
+    log(l10n`you have ${count} new messages.`) // pluralization with template strings
   }
 }
-log(l10n`unknown template literals generate a warning`)
+log(l10n`unknown keys generate a warning`) // except in production
 ```
-[output to console](https://cdn.rawgit.com/ZenyWay/basic-l10n/v1.0.0/example/index.html):
+[output to console](https://cdn.rawgit.com/ZenyWay/basic-l10n/v1.1.0/example/index.html):
 ```
+welcome
 date: 1/7/1982
 you have no new messages.
 you have one new message.
 you have 5 new messages.
+bienvenue
 date: 7/1/1982
 vous n'avez pas de nouveaux messages.
 vous avez un nouveau message.
 vous avez 5 nouveaux messages.
-(debug) WARNING: undefined localization for locale "fr" and key: "unknown template literals generate a warning"
+(debug) WARNING: undefined localization for locale "fr" and key "unknown template literals generate a warning"
 unknown template literals generate a warning
 ```
 # API
@@ -73,6 +77,7 @@ export default function createL10n(
 ): L10nTag
 
 export interface L10nTag {
+  (key: string): string
   (strings: TemplateStringsArray, ...substitutions: any[]): string
   localizations: Localizations
   locale: string
@@ -89,7 +94,7 @@ export interface L10nOptions {
 ```
 for a detailed specification of this API,
 in particular for handling of corner cases,
-run the [unit tests](https://cdn.rawgit.com/ZenyWay/basic-l10n/v1.0.0/spec/web/index.html)
+run the [unit tests](https://cdn.rawgit.com/ZenyWay/basic-l10n/v1.1.0/spec/web/index.html)
 in your browser.
 
 # TypeScript

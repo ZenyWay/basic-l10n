@@ -21,6 +21,7 @@ describe('createL10n:', function () {
   beforeEach(function () {
     localizations = {
       en: {
+        'welcome': 'welcome',
         'date: %s/%s/%s': 'date: %0/%1/%2',
         'you have %s new messages.': [
           'you have no new messages.',
@@ -29,6 +30,7 @@ describe('createL10n:', function () {
         ]
       },
       fr: {
+        'welcome': 'bienvenue',
         'date: %s/%s/%s': 'date: %1/%0/%2',
         'you have %s new messages.': [
           'vous n\'avez pas de nouveaux messages.',
@@ -49,6 +51,16 @@ describe('createL10n:', function () {
     })
     it('exposes a "localizations" object property', function () {
       expect(l10n.localizations).toEqual(jasmine.any(Object))
+    })
+    describe('when called with a known string key', function () {
+      let res
+      beforeEach(function () {
+        l10n.locale = 'fr'
+        res = l10n('welcome')
+      })
+      it('returns a localized string', function () {
+        expect(res).toBe('bienvenue')
+      })
     })
     describe('when called as tag function with a known template literal',
     function () {
@@ -74,6 +86,27 @@ describe('createL10n:', function () {
           'vous avez un nouveau message.',
           'vous avez 5 nouveaux messages.'
         ])
+      })
+    })
+    describe('when called with an unknown string key', function () {
+      let res
+      beforeEach(function () {
+        l10n.locale = 'fr'
+        res = l10n('42')
+      })
+      it('returns the given key', function () {
+        expect(res).toBe('42')
+      })
+    })
+    describe('when called as tag function with an unknown template literal key',
+    function () {
+      let res
+      beforeEach(function () {
+        l10n.locale = 'fr'
+        res = l10n`${42} is *`
+      })
+      it('returns the given key converted to a string', function () {
+        expect(res).toBe('42 is *')
       })
     })
   })

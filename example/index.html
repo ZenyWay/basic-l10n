@@ -26,6 +26,7 @@ const debug = logger('(debug)')
 
 const localizations = {
   en: {
+    'welcome': 'welcome',
     'date: %s/%s/%s': 'date: %0/%1/%2',
     'you have %s new messages.': [
       'you have no new messages.',
@@ -34,6 +35,7 @@ const localizations = {
     ]
   },
   fr: {
+    'welcome': 'bienvenue',
     'date: %s/%s/%s': 'date: %1/%0/%2',
     'you have %s new messages.': [
       'vous n\'avez pas de nouveaux messages.',
@@ -47,12 +49,13 @@ const l10n = createL10n(localizations, { debug })
 
 for (const lang of ['en', 'fr']) {
   l10n.locale = lang
+  log(l10n('welcome'))
   log(l10n`date: ${1}/${7}/${1982}`)
   for (const count of [0, 1, 5]) {
     log(l10n`you have ${count} new messages.`)
   }
 }
-log(l10n`unknown template literals generate a warning`)
+log(l10n`unknown keys generate a warning`)
   </pre>
   <br/>
   <div id="terminal"></div>
