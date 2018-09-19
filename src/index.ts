@@ -12,68 +12,63 @@
  * See the License for the specific language governing permissions and
  * Limitations under the License.
  */
-;
 export interface L10nTag {
   (key: string): string
   (strings: TemplateStringsArray, ...substitutes: any[]): string
-  localizations: Localizations
-  locale: string
-}
-
-export interface Localizations {
-  [locale: string]: {
-    [key: string]: string[]|string
-  }
 }
 
 export interface L10nOptions {
-  locale: string
   debug: (...args: any[]) => void
+}
+
+export type L10n = KVs<string[] | string>
+
+export interface KVs <V> {
+  [key: string]: V
 }
 
 const isArray: (val: any) => val is any[] = Array.isArray.bind(Array)
 
-export default function createL10n(
-  localizations = {} as Localizations,
+export default function createL10n (
+  l10ns: KVs<L10n>,
   opts = {} as Partial<L10nOptions>
-): L10nTag {
-  ;(l10n as L10nTag).localizations = localizations
-  const locales = localizations && Object.keys(localizations)
-  ;(l10n as L10nTag).locale = opts.locale || (locales && locales[0])
-
-  return l10n as L10nTag
-
-  function l10n (key: string): string
-  function l10n (strings: TemplateStringsArray, ...substitutes: any[]): string
-  function l10n (
-    keyOrStrings: string|TemplateStringsArray,
+): KVs<L10nTag> {
+  const _l10ns = map(l10ns, function (locale: string, l10n: L10n): L10nTag {
+    const _l10n = map(l10n, function (_: any, t9n: string[] | string) {
+      return isArray(t9n) ? t9n.slice() : t9n
+    })
+    return function localize (
+      keyOrStrings: string | TemplateStringsArray,
     ...substitutes: any[]
-  ): string {
-    const locale = (l10n as L10nTag).locale
-    const localizations = ((l10n as L10nTag).localizations || {})[locale]
-    const isKey = !isArray(keyOrStrings && (keyOrStrings as TemplateStringsArray).raw)
-    const numSubstitutes = substitutes.length
-    const key = isKey
-      ? keyOrStrings as string
-      : (keyOrStrings as TemplateStringsArray).join(numSubstitutes ? '%s' : '')
-    const localization = localizations && localizations[key]
-    if (process.env.NODE_ENV !== 'production') { // excluded from minified production build
-      assert(opts, localizations, localization, locale, key, isKey)
+    ): string {
+      const isKey =
+        !isArray(keyOrStrings && (keyOrStrings as TemplateStringsArray).raw)
+      const key = isKey
+        ? keyOrStrings as string
+        : (keyOrStrings as TemplateStringsArray).join(
+            substitutes.length ? '%s' : ''
+          )
+      const t9n = _l10n[key]
+      if (process.env.NODE_ENV !== 'production') { // excluded from minified production build
+        assert(opts, _l10n, t9n, locale, key, isKey)
+      }
+      return isKey
+        ? (!t9n || isArray(t9n) ? key : t9n)
+        : (
+          !t9n
+            ? (String.raw as Function)(...arguments)
+            : substitute(t9n, substitutes)
+        )
     }
-    return isKey
-      ? (!localization || isArray(localization) ? key : localization)
-      : (
-        !localization
-          ? (String.raw as Function)(...arguments)
-          : substitute(localization, substitutes)
-      )
-  }
+  })
+
+  return _l10ns
 }
 
-function substitute (localization: string | string[], substitutes: any[]) {
-  const template = !isArray(localization)
-    ? localization
-    : getBounded(localization, substitutes[0]);
+function substitute (translation: string | string[], substitutes: any[]) {
+  const template = !isArray(translation)
+    ? translation
+    : getBounded(translation, substitutes[0]);
   const phrases = template.split(/%(\d+)/);
   let i = phrases.length;
   while (--i > 0) {
@@ -88,27 +83,39 @@ function getBounded <T=any>(arr: T[], index: number): T {
   return arr[index < length ? (index < 0 ? 0 : index) : (length - 1)]
 }
 
+function map <T,U>(
+  entries: KVs<T>,
+  project: (key: string, val: T) => U
+): KVs<U> {
+  return Object.keys(entries).reduce(reduce, {} as KVs<U>)
+
+  function reduce (result: KVs<U>, key: string) {
+    result[key] = project(key, entries[key])
+    return result
+  }
+}
+
 // excluded from minified production build
-function assert(
+function assert (
   { debug }: Partial<L10nOptions>,
-  localizations: { [key: string]: string | string[] },
-  localization: string | string[],
+  translations: { [key: string]: string | string[] },
+  translation: string | string[],
   locale: string,
   key: string,
   isKey: boolean
 ) {
   if (!debug) { return }
-  if (!localizations) {
+  if (!translations) {
     return debug(
       `WARNING: undefined localizations for locale "${locale}"`
     )
   }
-  if (!localization) {
+  if (!translation) {
     return debug(
       `WARNING: undefined localization for locale "${locale}" and key "${key}"`
     )
   }
-  else if (isKey && isArray(localization)) {
+  else if (isKey && isArray(translation)) {
     return debug(
       `WARNING: unexpected localization type for locale "${locale}" and key "${key}"`
     )

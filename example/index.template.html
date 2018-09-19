@@ -17,44 +17,7 @@ Limitations under the License.
 </head>
 <body>
   <h2><pre>`basic-l10n` example</pre></h2>
-  <pre><code class="typescript">import createL10ns from 'basic-l10n/dist/index.js' // dev version with debug warnings
-import logger from './console'
-const log = logger()
-const debug = logger('(debug)')
-
-const localizations = {
-  fr: {
-    'welcome': 'bienvenue', // default string localization
-    'date: %s/%s/%s': 'date: %1/%0/%2', // reorder substitutions
-    'you have %s new messages.': [ // pluralization
-      'vous n\'avez pas de nouveaux messages.', // 0
-      'vous avez un nouveau message.', // 1
-      'vous avez %0 nouveaux messages.' // 2
-      // not limited to 3 entries, could be any number
-    ]
-  },
-  en: {
-    'welcome': 'welcome',
-    'date: %s/%s/%s': 'date: %0/%1/%2',
-    'you have %s new messages.': [
-      'you have no new messages.',
-      'you have one new message.',
-      'you have %0 new messages.'
-    ]
-  }
-}
-
-const l10ns = createL10ns(localizations, { debug })
-
-for (const lang of ['en', 'fr']) {
-  const t = l10ns[lang]
-  log(t('welcome')) // default string localization
-  log(t`date: ${1}/${7}/${1982}`) // reordering with template strings
-  for (const count of [0, 1, 5]) {
-    log(t`you have ${count} new messages.`) // pluralization with template strings
-  }
-}
-log(l10ns.en`unknown keys generate a warning`) // except in production</code></pre>
+  <pre><code class="typescript"><link href="./index.ts" /></code></pre>
   <br/>
   <div id="terminal"></div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/2.9.2/xterm.min.js" integrity="sha256-8rsVcpCnO6HdeJL84i0VdubjM42fjSmO8aONghdq3gc=" crossorigin="anonymous"></script>

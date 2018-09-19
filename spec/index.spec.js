@@ -17,7 +17,7 @@
 const createL10n = require('../').default
 
 describe('createL10n:', function () {
-  let localizations, l10n
+  let localizations, l10ns
   beforeEach(function () {
     localizations = {
       en: {
@@ -39,47 +39,56 @@ describe('createL10n:', function () {
         ]
       }
     }
-    l10n = createL10n(localizations)
-  })
-  it('returns a function.', function () {
-    expect(l10n).toEqual(jasmine.any(Function))
+    l10ns = createL10n(localizations)
   })
 
-  describe('the returned function:', function () {
-    it('exposes a "locale" string property', function () {
-      expect(l10n.locale).toEqual(jasmine.any(String))
+  it('returns a key-value map with the same keys ' +
+  'as the given localizations map, i.e. the locales.', function () {
+    expect(Object.keys(l10ns)).toEqual(['en', 'fr'])
+  })
+
+  describe('each value of the returned key-value map:', function () {
+    let t
+    beforeEach(function () {
+      t = l10ns.fr
     })
-    it('exposes a "localizations" object property', function () {
-      expect(l10n.localizations).toEqual(jasmine.any(Object))
+
+    it('is a function', function () {
+      Object.keys(l10ns).forEach(
+        locale => expect(l10ns[locale]).toEqual(jasmine.any(Function))
+      )
     })
+
     describe('when called with a known string key', function () {
       let res
       beforeEach(function () {
-        l10n.locale = 'fr'
-        res = l10n('welcome')
+        res = t('welcome')
       })
+
       it('returns a localized string', function () {
         expect(res).toBe('bienvenue')
       })
     })
-    describe('when called as tag function with a known template literal',
-    function () {
+
+    describe('when called as tag function ' +
+    'with a known template literal', function () {
       let res
       beforeEach(function () {
-        l10n.locale = 'fr'
-        res = l10n`date: ${7}/${1}/${1982}`
+        res = t`date: ${7}/${1}/${1982}`
       })
+
       it('returns a localized string', function () {
         expect(res).toBe('date: 1/7/1982')
       })
     })
-    describe('when called as tag function with a known template literal for plurals',
-    function () {
+
+    describe('when called as tag function ' +
+    'with a known template literal for plurals', function () {
       let res
       beforeEach(function () {
-        l10n.locale = 'fr'
-        res = [0, 1, 5].map((count) => l10n`you have ${count} new messages.`)
+        res = [0, 1, 5].map((count) => t`you have ${count} new messages.`)
       })
+
       it('returns a correspondingly pluralized localized string', function () {
         expect(res).toEqual([
           'vous n\'avez pas de nouveaux messages.',
@@ -88,25 +97,25 @@ describe('createL10n:', function () {
         ])
       })
     })
+
     describe('when called with an unknown string key', function () {
       let res
       beforeEach(function () {
-        l10n.locale = 'fr'
-        res = l10n('42')
+        res = t('42 is * in ASCII')
       })
       it('returns the given key', function () {
-        expect(res).toBe('42')
+        expect(res).toBe('42 is * in ASCII')
       })
     })
-    describe('when called as tag function with an unknown template literal key',
-    function () {
+
+    describe('when called as tag function ' +
+    'with an unknown template literal key', function () {
       let res
       beforeEach(function () {
-        l10n.locale = 'fr'
-        res = l10n`${42} is *`
+        res = t`${42} is * in ASCII`
       })
       it('returns the given key converted to a string', function () {
-        expect(res).toBe('42 is *')
+        expect(res).toBe('42 is * in ASCII')
       })
     })
   })

@@ -1,7 +1,7 @@
 {
   "name": "basic-l10n",
-  "version": "1.1.0",
-  "description": "basic localization of strings (391 bytes gzip, no deps), including pluralization and reordering of substitutions with template literals.",
+  "version": "2.0.0",
+  "description": "basic localization of strings (396 bytes gzip, no deps), including pluralization and reordering of substitutions with template literals.",
   "main": "dist/index.min.js",
   "typings": "dist/index.d.ts",
   "scripts": {
@@ -10,14 +10,16 @@
     "postdist": "npm run uglify",
     "example": "npm run example:bundle && npm run example:serve",
     "example:serve": "http-server -c-1 -i -e html -o -p 6510 example",
-    "preexample:bundle": "rimraf spec/example/*.js",
+    "preexample:html": "rimraf example/index.html",
+    "example:html": "inline-source --compress false --root ./example example/index.template.html example/index.html",
+    "preexample:bundle": "rimraf example/*.js",
     "example:bundle": "browserify example/index.ts -p [ tsify --project example ] -g uglifyify -p bundle-collapser/plugin -p [ common-shakeify -v ] | uglifyjs -c toplevel -m toplevel -o example/index.js",
     "prepublish": "npm run test",
     "pretest": "npm run dist",
     "test": "jasmine",
-    "test:web:serve": "http-server -c-1 -o -p 6510 spec/web",
     "pretest:web": "rimraf spec/web/*.js && npm run dist",
     "test:web": "browserify spec/*.spec.js -g uglifyify -p bundle-collapser/plugin -p [ common-shakeify -v ] | uglifyjs -c toplevel -m toplevel -o spec/web/index.spec.js && npm run test:web:serve",
+    "test:web:serve": "http-server -c-1 -o -p 6510 spec/web",
     "uglify": "uglifyjs dist/index.js -c toplevel -m toplevel --define process.env.NODE_ENV=\\\"production\\\" -o dist/index.min.js"
   },
   "keywords": [
@@ -43,21 +45,26 @@
   },
   "homepage": "https://github.com/zenyway/basic-l10n#readme",
   "devDependencies": {
-    "@types/node": "^10.3.4",
+    "@types/node": "^10.10.1",
     "browserify": "^16.2.2",
     "bundle-collapser": "^1.3.0",
     "common-shakeify": "^0.4.6",
     "envify": "^4.1.0",
+    "eslint-plugin-typescript": "^0.12.0",
     "http-server": "^0.11.1",
-    "jasmine": "^3.1.0",
-    "printf": "^0.3.0",
+    "inline-source-cli": "^1.2.0",
+    "jasmine": "^3.2.0",
+    "printf": "^0.5.1",
     "rimraf": "^2.6.2",
+    "standard": "^12.0.1",
     "tsify": "^4.0.0",
-    "tslint": "^5.10.0",
-    "typescript": "^2.9.2",
+    "tslint": "^5.11.0",
+    "tslint-config-standard": "^8.0.1",
+    "typescript": "^3.0.3",
+    "typescript-eslint-parser": "^18.0.0",
     "uglify-es": "^3.3.9",
-    "uglifyify": "^5.0.0",
-    "xterm": "^3.4.1"
+    "uglifyify": "^5.0.1",
+    "xterm": "^3.7.0"
   },
   "dependencies": {}
 }
